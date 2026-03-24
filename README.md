@@ -1,50 +1,126 @@
-# Welcome to your Expo app 👋
+# App de control de gastos 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Esta es una aplicación de control de gastos.
 
-## Get started
+Dentro de esta aplicación se implementará el uso de la librería [Nativewind](https://www.nativewind.dev/) para agilizar el desarrollo.
 
-1. Install dependencies
+## Empezar
+1. Crear proyecto
+    ```bash
+    npx create-expo-app@latest
+    ```
+
+2. Instalar dependendia
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Instalar [nativewind](https://www.nativewind.dev/) y sus dependencias
+    ```bash
+    npm install nativewind react-native-reanimated react-native-safe-area-context
+    npm install --dev tailwindcss@^3.4.17 prettier-plugin-tailwindcss@^0.5.11 babel-preset-expo
+    ```
+
+4. Configurar Tailwind Css
+
+    Ejecuta el comando `npx tailwindcss init` para crear el archivo `tailwind.config.js`
+
+    Añade las rutas de todos tus archivos de componentes en el archivo `tailwind.config.js.`
+
+
+    ```tailwind.config.ts
+    /** @type {import('tailwindcss').Config} */
+    module.exports = {
+    content: ["./App.tsx", "./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
+    presets: [require("nativewind/preset")],
+    theme: {
+        extend: {},
+    },
+    plugins: [],
+    }
+    ```
+
+    Crear archivo `global.css` y agregar las directivas de Tailwind
+    ```
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+    ```
+
+5. Agrega o configura el archivo **babel.config.js** :
+    ```
+    module.exports = function (api) {
+        api.cache(true);
+        return {
+        presets: [
+            ["babel-preset-expo", { jsxImportSource: "nativewind" }],
+            "nativewind/babel",
+        ],
+        };
+    };
+    ```
+
+6. Agrega o configura el archivo `metro.config.js`
+ 
+    Crea el archivo `metro.config.js` en el directorio principal del proyecto sí no tienes creado uno y agrega la siguiente configuración:
+
+    ```
+    const { getDefaultConfig } = require("expo/metro-config");
+    const { withNativeWind } = require('nativewind/metro');
+    
+    const config = getDefaultConfig(__dirname)
+    
+    module.exports = withNativeWind(config, { input: './global.css' })
+    ```
+
+7. Modifica el archivo `app.json` 
+    
+    Cambia el bundler para implementar el [Metro bundler](https://docs.expo.dev/guides/customizing-metro/#web-support)
+    ```
+    {
+        "expo": {
+            "web": {
+            "bundler": "metro"
+            }
+        }
+    }
+    ```
+8. Importar el archivo global css con importación de Tailwind
+
+    En este caso lo agregaremos en un archivo donde se importe de forma general en toda la aplicación, con base al ruteo implementado por expo se hara en el archivo `app/_layout.tsx`
+
+    ```
+    import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+    import { Stack } from 'expo-router';
+    import { StatusBar } from 'expo-status-bar';
+    import 'react-native-reanimated';
+    import "../global.css";
+
+    import { useColorScheme } from '@/hooks/use-color-scheme';
+
+    export const unstable_settings = {
+    anchor: '(tabs)',
+    };
+
+    export default function RootLayout() {
+    const colorScheme = useColorScheme();
+
+        return (
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+            </Stack>
+            <StatusBar style="auto" />
+            </ThemeProvider>
+        );
+    }
+
+    ```
+
+9. Iniciar el proyecto
 
    ```bash
-   npx expo start
+   npx expo start --clear
    ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
